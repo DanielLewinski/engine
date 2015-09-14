@@ -18,6 +18,12 @@ Window::Window(unsigned int newWidth, unsigned int newHeight, std::string title)
 	windowSurface = SDL_GetWindowSurface(window);
 }
 
+Window::Window(unsigned int newWidth, unsigned int newHeight, std::vector<SDL_Rect> viewports, std::string title)
+	: Window(newWidth, newHeight, title)
+{
+	SetViewports(viewports);
+}
+
 Window::~Window()
 {
 	SDL_DestroyRenderer(renderer);
@@ -54,15 +60,43 @@ void Window::CreateRenderer()
 	GameObject::SetRenderer(renderer);
 }
 
-void Window::ShowObject(GameObject& gameObject)
+void Window::RenderObject(GameObject& gameObject)
 {
-	SDL_RenderCopy(renderer, gameObject.GetTexture(), nullptr, nullptr);
+	SDL_RenderCopy(renderer, gameObject.GetTexture(), gameObject.GetClip(), &gameObject.GetPosition());
+}
+
+inline void Window::ClearScreen()
+{
+	SDL_RenderClear(renderer);
+}
+
+inline void Window::UpdateScreen()
+{
+	SDL_RenderPresent(renderer);
+}
+
+inline void Window::SetViewports(std::vector<SDL_Rect> newViewports)
+{
+	if(!newViewports.empty())
+	{
+		viewports = newViewports;
+		SetActiveViewport(viewports[0]);
+	}
+}
+
+inline void Window::SetActiveViewport(SDL_Rect viewport)
+{
+	SDL_RenderSetViewport(renderer, &viewport);
 }
 
 void Window::GameLoop()
 {
 	bool terminate = false;
 	GameObject gameObject({0,0,320,240}, "loaded.png");
+	gameObject.LoadClips({{0,0,320,480},{320,0,320,480}});
+	gameObject.SetActiveClip(-1);
+	gameObject.ModulateTextureColor(128,128,128);
+	gameObject.ModulateTextureAlpha(128);
 
 	while(!terminate)
 	{
@@ -71,8 +105,8 @@ void Window::GameLoop()
 			if(event.type == SDL_QUIT)
 				terminate = true;
 		}
-		SDL_RenderClear(renderer);
-		ShowObject(gameObject);
-		SDL_RenderPresent(renderer);
+		ClearScreen();
+		RenderObject(gameObject);
+		UpdateScreen();
 	}
 }
