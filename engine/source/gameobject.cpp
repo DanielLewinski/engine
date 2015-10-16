@@ -2,12 +2,26 @@
 
 SDL_Renderer* GameObject::renderer = nullptr;
 
-GameObject::GameObject(SDL_Rect newPosition, std::string imagePath, bool doesColorKey, Uint8 keyR, Uint8 keyG, Uint8 keyB)
-	: position(newPosition), activeClip(nullptr)
+GameObject::GameObject(SDL_Rect newPosition, std::string imagePath, bool doesColorKey, SDL_Color colorKey)
+	: activeClip(nullptr), position(newPosition), isActive(true)
 {
 	try
 	{
-		LoadSurface(imagePath, doesColorKey, keyR, keyG, keyB);
+		texture = LoadSurface(imagePath, doesColorKey, colorKey);
+	}
+	catch(std::exception& exception)
+	{
+		printf("%s\n", exception.what());
+		std::terminate();
+	}
+}
+
+GameObject::GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color color)
+	: font(&newFont), activeClip(nullptr), position(newPosition), isActive(true)
+{
+	try
+	{
+		texture = LoadTextTexture(textureText, color);
 	}
 	catch(std::exception& exception)
 	{
@@ -21,35 +35,68 @@ GameObject::~GameObject()
 	SDL_DestroyTexture(texture);
 }
 
-void GameObject::LoadSurface(std::string imagePath, bool doesColorKey, Uint8 keyR, Uint8 keyG, Uint8 keyB)
+void GameObject::Activate()
+{
+	isActive = !isActive;
+}
+
+inline void GameObject::Render()
+{
+	if(isActive)
+		SDL_RenderCopy(renderer, texture, activeClip, &position);
+}
+
+SDL_Texture* GameObject::LoadSurface(std::string imagePath, bool doesColorKey, SDL_Color colorKey)
 {
 	SDL_Surface* surface;
 	surface = IMG_Load(imagePath.c_str());
 	if(surface == nullptr)
 		SDLException::throwException();
-	SDL_SetColorKey(surface, doesColorKey, SDL_MapRGB(surface->format, keyR, keyG, keyB));
-	LoadTexture(surface);
+
+	imageSize = {surface->w, surface->h};
+
+	SDL_SetColorKey(surface, doesColorKey, SDL_MapRGB(surface->format, colorKey.r, colorKey.g, colorKey.b));
+	LoadClips({{0, 0, surface->w, surface->h}});
+	SetActiveClip(0);
+	return LoadTexture(surface);
 }
 
-void GameObject::LoadTexture(SDL_Surface* surface)
+SDL_Texture* GameObject::LoadTexture(SDL_Surface* surface)
 {
-	texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 	if(texture == nullptr)
 		SDLException::throwException();
+
 	SDL_FreeSurface(surface);
+	return texture;
+}
+
+SDL_Texture* GameObject::LoadTextTexture(std::string textureText, SDL_Color color)
+{
+	SDL_Surface* textSurface = TTF_RenderText_Solid(font->Get(), textureText.c_str(), color);
+	if(textSurface == nullptr)
+		SDLException::throwException();
+
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+	if(texture == nullptr)
+	{
+		SDL_FreeSurface(textSurface);
+		SDLException::throwException();
+	}
+
+	SDL_FreeSurface(textSurface);
+	return texture;
 }
 
 void GameObject::LoadClips(std::vector<SDL_Rect> newClips)
 {
-	clips = newClips;
+	spriteClips = newClips;
 }
 
-void GameObject::SetActiveClip(int clipIndex)
+void GameObject::SetActiveClip(unsigned int clipIndex)
 {
-	if(clipIndex == -1)
-		activeClip = nullptr;
-	else if(static_cast<unsigned int>(clipIndex) < clips.size())
-		activeClip = &clips[clipIndex];
+	if(clipIndex < spriteClips.size())
+		activeClip = &spriteClips[clipIndex];
 }
 
 void GameObject::SetRenderer(SDL_Renderer *renderer)
@@ -68,17 +115,9 @@ void GameObject::ModulateTextureAlpha(Uint8 alpha, SDL_BlendMode blendMode)
 	SDL_SetTextureAlphaMod(texture, alpha);
 }
 
-SDL_Texture* GameObject::GetTexture()
+void GameObject::Animate()
 {
-	return texture;
-}
-
-SDL_Rect& GameObject::GetPosition()
-{
-	return position;
-}
-
-SDL_Rect* GameObject::GetClip()
-{
-	return activeClip;
+	static unsigned int frame = 0; //TODO: change this to something sensible
+	SetActiveClip(frame);
+	++frame %= spriteClips.size();
 }
