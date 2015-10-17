@@ -10,7 +10,7 @@ class GameObject
 {
 public:
 	GameObject(SDL_Rect newPosition, std::string imagePath, bool doesColorKey = false, SDL_Color colorKey = {0,0,0,0});
-	GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color newColor = {0,0,0,0});
+	//GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color newColor = {0,0,0,0});
 	~GameObject();
 
 	virtual void Render();
@@ -28,11 +28,13 @@ public:
 	void ModulateTextureAlpha(Uint8, SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND);
 
 protected:
-	SDL_Texture* LoadTexture(SDL_Surface* surface);
-	SDL_Texture* LoadTextTexture(std::string textureText, SDL_Color color);
+	GameObject(SDL_Rect newPosition);
 
-	Font* font;
-	SDL_Color color;
+	SDL_Texture* LoadTexture(SDL_Surface* surface);
+	//SDL_Texture* LoadTextTexture(std::string textureText, SDL_Color color);
+
+	//Font* font;
+	//SDL_Color color;
 	SDL_Texture* texture;
 	static SDL_Renderer* renderer;
 	SDL_Rect* activeClip;

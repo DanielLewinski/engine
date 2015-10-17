@@ -1,13 +1,13 @@
 #include "button.h"
 
 Button::Button(SDL_Rect newPosition, std::string imagePath, std::string backgroundPath, std::function<void()> newFunction, bool doesColorKey, SDL_Color colorKey)
-	: GameObject(newPosition, imagePath, doesColorKey, colorKey), Function(newFunction), wasClicked(false)
+	: UIObject(newPosition, imagePath, doesColorKey, colorKey), Function(newFunction), wasClicked(false)
 {
 	LoadBackground(backgroundPath);
 }
 
-Button::Button(SDL_Rect newPosition, Font& font, std::string imageText, std::string backgroundPath, std::function<void()> newFunction, SDL_Color color)
-	: GameObject(newPosition, font,imageText, color), Function(newFunction), wasClicked(false)
+Button::Button(SDL_Rect newPosition, Font& font, std::string imageText, std::string backgroundPath, std::function<void()> newFunction, SDL_Color newColor)
+	: UIObject(newPosition, font,imageText, newColor), Function(newFunction), wasClicked(false)
 {
 	LoadBackground(backgroundPath.c_str());
 }

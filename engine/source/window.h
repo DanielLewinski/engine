@@ -4,6 +4,7 @@
 #include "button.h"
 #include "sounds.h"
 #include "timer.h"
+#include <iostream>
 
 #define SDL_FLAGS SDL_INIT_VIDEO | SDL_INIT_AUDIO
 #define IMAGE_FLAGS IMG_INIT_PNG

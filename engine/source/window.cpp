@@ -110,15 +110,18 @@ void Window::GameLoop()
 	Font font("font.ttf", 100);
 	Sound sound("sound.wav");
 	Music music("music.ogg");
-	Button button({0,0,width/2,height/2},font, "Play/Pause", "background.png", [&music](){ printf("chuj\n"); music.Play();});
+	Timer timer({0,0,100,100}, font);
+	FPSCounter fpsCounter({540,0,100,100}, font);
+	Button button({0,0,width/2,height/2},font, "Play/Pause", "background.png", [&music, &timer](){ printf("chuj\n"); music.PlayPause(); timer.PlayPause();});
 	Button button1({width/2,0,width/2,height/2},font, "Hide Button", "background.png", [&button](){ printf("dupa\n"); button.Activate();});
 	Button button2({0,height/2,width/2,height/2},font, "Play sound", "background.png", [&sound](){ printf("kurwa\n"); sound.Play();});
-	Button button3({width/2,height/2,width/2,height/2},font, "Stop Music", "background.png", [&music](){ printf("cipa"); music.Stop();});
+	Button button3({width/2,height/2,width/2,height/2},font, "Stop Music", "background.png", [&music, &timer](){ printf("cipa"); music.Stop(); timer.Stop();});
 	//gameObject.ModulateTextureColor(128,128,128);
 	//gameObject.ModulateTextureAlpha(128);
 	//gameObject.LoadClips({{0,0,64,205},{64,0,64,205},{128,0,64,205},{192,0,64,205}});
 
-	Timer timer({0,0,100,100}, font, " ");
+	std::cout << sizeof(std::stringstream) << "\n";
+	std::cout << sizeof(Window) << "\n" << sizeof(GameObject) << "\n" << sizeof(UIObject) << "\n" << sizeof(Button) << "\n" << sizeof(Timer) << "\n" << sizeof(FPSCounter) << "\n" << sizeof(Font) << "\n" << sizeof(Sound) << "\n" << sizeof(Music) << "\n";
 
 	while(!done)
 	{
@@ -133,6 +136,7 @@ void Window::GameLoop()
 		}
 		//gameObject.Animate();
 		timer.Actualize();
+		fpsCounter.Actualize();
 
 		ClearScreen();
 		button.Render();
@@ -140,6 +144,7 @@ void Window::GameLoop()
 		button2.Render();
 		button3.Render();
 		timer.Render();
+		fpsCounter.Render();
 		UpdateScreen();
 	}
 }

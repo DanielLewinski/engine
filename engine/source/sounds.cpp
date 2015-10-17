@@ -45,7 +45,7 @@ Music::~Music()
 	Mix_FreeMusic(music);
 }
 
-void Music::Play(int loops)
+void Music::PlayPause(int loops)
 {
 	if(Mix_PlayingMusic())
 	{
@@ -61,4 +61,10 @@ void Music::Play(int loops)
 void Music::Stop()
 {
 	Mix_HaltMusic();
+}
+
+void Music::Restart(int loops)
+{
+	Stop();
+	PlayPause(loops);
 }

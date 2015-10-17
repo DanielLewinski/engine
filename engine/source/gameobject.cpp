@@ -7,11 +7,17 @@ GameObject::GameObject(SDL_Rect newPosition, std::string imagePath, bool doesCol
 {
 	texture = LoadSurface(imagePath, doesColorKey, colorKey);
 }
-
+/*
 GameObject::GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color newColor)
 	: font(&newFont), color(newColor), activeClip(nullptr), position(newPosition), isActive(true)
 {
 	texture = LoadTextTexture(textureText, newColor);
+}
+*/
+GameObject::GameObject(SDL_Rect newPosition)
+	: activeClip(nullptr), position(newPosition), isActive(true)
+{
+
 }
 
 GameObject::~GameObject()
@@ -63,7 +69,7 @@ SDL_Texture* GameObject::LoadTexture(SDL_Surface* surface)
 	return texture;
 
 }
-
+/*
 SDL_Texture* GameObject::LoadTextTexture(std::string textureText, SDL_Color color)
 {
 	try
@@ -88,7 +94,7 @@ SDL_Texture* GameObject::LoadTextTexture(std::string textureText, SDL_Color colo
 		std::terminate();
 	}
 }
-
+*/
 void GameObject::LoadClips(std::vector<SDL_Rect> newClips)
 {
 	spriteClips = newClips;

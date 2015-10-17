@@ -21,8 +21,9 @@ class Music
 public:
 	Music(std::string musicPath);
 	~Music();
-	void Play(int loops = -1);
+	void PlayPause(int loops = -1);
 	void Stop();
+	void Restart(int loops = -1);
 
 private:
 	Mix_Music* music;

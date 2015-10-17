@@ -10,7 +10,8 @@ SOURCES += source/main.cpp \
     source/button.cpp \
     source/font.cpp \
     source/sounds.cpp \
-    source/timer.cpp
+    source/timer.cpp \
+    source/uiobject.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
