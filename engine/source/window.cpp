@@ -6,8 +6,9 @@ Window::Window(unsigned int newWidth, unsigned int newHeight, std::string title)
 	try
 	{
 		InitializeSDL();
-		InitializeIMG(IMG_INIT_PNG);
+		InitializeIMG();
 		InitializeTTF();
+		InitializeMixer();
 		CreateWindow(title);
 		CreateRenderer();
 	}
@@ -29,6 +30,7 @@ Window::~Window()
 {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
+	Mix_Quit();
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
@@ -36,19 +38,28 @@ Window::~Window()
 
 void Window::InitializeSDL()
 {
-	if(SDL_Init(SDL_INIT_VIDEO) == -1)
+	if(SDL_Init(SDL_FLAGS) == -1)
 		SDLException::throwException();
 }
 
-void Window::InitializeIMG(int flags) const
+void Window::InitializeIMG() const
 {
-	if( (IMG_Init(flags)&flags) != flags)
+	if( (IMG_Init(IMAGE_FLAGS)&IMAGE_FLAGS) != IMAGE_FLAGS)
 		SDLException::throwException();
 }
 
 void Window::InitializeTTF()
 {
 	if(TTF_Init() == -1)
+		SDLException::throwException();
+}
+
+void Window::InitializeMixer()
+{
+	if((Mix_Init(MIXER_FLAGS)&MIXER_FLAGS) != MIXER_FLAGS)
+		SDLException::throwException();
+
+	if(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
 		SDLException::throwException();
 }
 
@@ -96,15 +107,18 @@ void Window::GameLoop()
 {
 	bool done = false;
 	//GameObject button({0,0,64,205}, "foo.png",true, 0, 255, 255);
-	Font font("font.ttf", 250);
-
-	Button button({0,0,width/2,height/2},font, "Chuj!!!", "background.png", [](){ printf("chuj\n");});
-	Button button1({width/2,0,width/2,height/2},font, "Dupa!!!", "background.png", [&button](){ printf("dupa\n"); button.Activate();});
-	Button button2({0,height/2,width/2,height/2},font, "Kurwa!!!", "background.png", [](){ printf("kurwa\n");});
-	Button button3({width/2,height/2,width/2,height/2},font, "Cipa!!!", "background.png", [](){ printf("cipa");});
+	Font font("font.ttf", 100);
+	Sound sound("sound.wav");
+	Music music("music.ogg");
+	Button button({0,0,width/2,height/2},font, "Play/Pause", "background.png", [&music](){ printf("chuj\n"); music.Play();});
+	Button button1({width/2,0,width/2,height/2},font, "Hide Button", "background.png", [&button](){ printf("dupa\n"); button.Activate();});
+	Button button2({0,height/2,width/2,height/2},font, "Play sound", "background.png", [&sound](){ printf("kurwa\n"); sound.Play();});
+	Button button3({width/2,height/2,width/2,height/2},font, "Stop Music", "background.png", [&music](){ printf("cipa"); music.Stop();});
 	//gameObject.ModulateTextureColor(128,128,128);
 	//gameObject.ModulateTextureAlpha(128);
 	//gameObject.LoadClips({{0,0,64,205},{64,0,64,205},{128,0,64,205},{192,0,64,205}});
+
+	Timer timer({0,0,100,100}, font, " ");
 
 	while(!done)
 	{
@@ -118,12 +132,14 @@ void Window::GameLoop()
 			button3.EventLoop(event);
 		}
 		//gameObject.Animate();
+		timer.Actualize();
 
 		ClearScreen();
 		button.Render();
 		button1.Render();
 		button2.Render();
 		button3.Render();
+		timer.Render();
 		UpdateScreen();
 	}
 }

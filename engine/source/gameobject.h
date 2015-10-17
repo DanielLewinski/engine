@@ -10,7 +10,7 @@ class GameObject
 {
 public:
 	GameObject(SDL_Rect newPosition, std::string imagePath, bool doesColorKey = false, SDL_Color colorKey = {0,0,0,0});
-	GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color color = {0,0,0,0});
+	GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color newColor = {0,0,0,0});
 	~GameObject();
 
 	virtual void Render();
@@ -32,6 +32,7 @@ protected:
 	SDL_Texture* LoadTextTexture(std::string textureText, SDL_Color color);
 
 	Font* font;
+	SDL_Color color;
 	SDL_Texture* texture;
 	static SDL_Renderer* renderer;
 	SDL_Rect* activeClip;

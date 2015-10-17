@@ -5,29 +5,13 @@ SDL_Renderer* GameObject::renderer = nullptr;
 GameObject::GameObject(SDL_Rect newPosition, std::string imagePath, bool doesColorKey, SDL_Color colorKey)
 	: activeClip(nullptr), position(newPosition), isActive(true)
 {
-	try
-	{
-		texture = LoadSurface(imagePath, doesColorKey, colorKey);
-	}
-	catch(std::exception& exception)
-	{
-		printf("%s\n", exception.what());
-		std::terminate();
-	}
+	texture = LoadSurface(imagePath, doesColorKey, colorKey);
 }
 
-GameObject::GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color color)
-	: font(&newFont), activeClip(nullptr), position(newPosition), isActive(true)
+GameObject::GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color newColor)
+	: font(&newFont), color(newColor), activeClip(nullptr), position(newPosition), isActive(true)
 {
-	try
-	{
-		texture = LoadTextTexture(textureText, color);
-	}
-	catch(std::exception& exception)
-	{
-		printf("%s\n", exception.what());
-		std::terminate();
-	}
+	texture = LoadTextTexture(textureText, newColor);
 }
 
 GameObject::~GameObject()
@@ -48,17 +32,25 @@ inline void GameObject::Render()
 
 SDL_Texture* GameObject::LoadSurface(std::string imagePath, bool doesColorKey, SDL_Color colorKey)
 {
-	SDL_Surface* surface;
-	surface = IMG_Load(imagePath.c_str());
-	if(surface == nullptr)
-		SDLException::throwException();
+	try
+	{
+		SDL_Surface* surface;
+		surface = IMG_Load(imagePath.c_str());
+		if(surface == nullptr)
+			SDLException::throwException();
 
-	imageSize = {surface->w, surface->h};
+		imageSize = {surface->w, surface->h};
 
-	SDL_SetColorKey(surface, doesColorKey, SDL_MapRGB(surface->format, colorKey.r, colorKey.g, colorKey.b));
-	LoadClips({{0, 0, surface->w, surface->h}});
-	SetActiveClip(0);
-	return LoadTexture(surface);
+		SDL_SetColorKey(surface, doesColorKey, SDL_MapRGB(surface->format, colorKey.r, colorKey.g, colorKey.b));
+		LoadClips({{0, 0, surface->w, surface->h}});
+		SetActiveClip(0);
+		return LoadTexture(surface);
+	}
+	catch(std::exception& exception)
+	{
+		printf("%s\n", exception.what());
+		std::terminate();
+	}
 }
 
 SDL_Texture* GameObject::LoadTexture(SDL_Surface* surface)
@@ -69,23 +61,32 @@ SDL_Texture* GameObject::LoadTexture(SDL_Surface* surface)
 
 	SDL_FreeSurface(surface);
 	return texture;
+
 }
 
 SDL_Texture* GameObject::LoadTextTexture(std::string textureText, SDL_Color color)
 {
-	SDL_Surface* textSurface = TTF_RenderText_Solid(font->Get(), textureText.c_str(), color);
-	if(textSurface == nullptr)
-		SDLException::throwException();
-
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
-	if(texture == nullptr)
+	try
 	{
-		SDL_FreeSurface(textSurface);
-		SDLException::throwException();
-	}
+		SDL_Surface* textSurface = TTF_RenderText_Solid(font->Get(), textureText.c_str(), color);
+		if(textSurface == nullptr)
+			SDLException::throwException();
 
-	SDL_FreeSurface(textSurface);
-	return texture;
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+		if(texture == nullptr)
+		{
+			SDL_FreeSurface(textSurface);
+			SDLException::throwException();
+		}
+
+		SDL_FreeSurface(textSurface);
+		return texture;
+	}
+	catch(std::exception& exception)
+	{
+		printf("%s\n", exception.what());
+		std::terminate();
+	}
 }
 
 void GameObject::LoadClips(std::vector<SDL_Rect> newClips)

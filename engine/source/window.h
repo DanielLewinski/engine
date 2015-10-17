@@ -2,6 +2,12 @@
 #define WINDOW_H
 
 #include "button.h"
+#include "sounds.h"
+#include "timer.h"
+
+#define SDL_FLAGS SDL_INIT_VIDEO | SDL_INIT_AUDIO
+#define IMAGE_FLAGS IMG_INIT_PNG
+#define MIXER_FLAGS MIX_INIT_OGG
 
 class Window
 {
@@ -19,8 +25,9 @@ public:
 
 private:
 	void InitializeSDL();
-	void InitializeIMG(int flags) const;
+	void InitializeIMG() const;
 	void InitializeTTF();
+	void InitializeMixer();
 	void CreateWindow(std::string title);
 	void CreateRenderer();
 
@@ -33,6 +40,7 @@ private:
 	SDL_Event event;
 
 	std::vector<SDL_Rect> viewports;
+
 };
 
 #endif // WINDOW_H

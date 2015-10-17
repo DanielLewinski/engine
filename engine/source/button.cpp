@@ -19,9 +19,17 @@ Button::~Button()
 
 void Button::LoadBackground(std::string backgroundPath)
 {
-	background = LoadSurface(backgroundPath.c_str());
-	LoadClips({{0, 0, imageSize.x, imageSize.y/2},{0, imageSize.y/2, imageSize.x, imageSize.y/2}});
-	SetActiveClip(0);
+	try
+	{
+		background = LoadSurface(backgroundPath.c_str());
+		LoadClips({{0, 0, imageSize.x, imageSize.y/2},{0, imageSize.y/2, imageSize.x, imageSize.y/2}});
+		SetActiveClip(0);
+	}
+	catch(std::exception& exception)
+	{
+		printf("%s\n", exception.what());
+		std::terminate();
+	}
 }
 
 void Button::Render()

@@ -2,7 +2,15 @@
 
 Font::Font(std::string fontPath, int size)
 {
-	font = TTF_OpenFont(fontPath.c_str(), size);
+	try
+	{
+		font = TTF_OpenFont(fontPath.c_str(), size);
+	}
+	catch(std::exception& exception)
+	{
+		printf("%s\n", exception.what());
+		std::terminate();
+	}
 }
 
 Font::Font()

@@ -8,7 +8,9 @@ SOURCES += source/main.cpp \
     source/exceptions.cpp \
     source/gameobject.cpp \
     source/button.cpp \
-    source/font.cpp
+    source/font.cpp \
+    source/sounds.cpp \
+    source/timer.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
@@ -18,8 +20,11 @@ HEADERS += \
     source/exceptions.h \
     source/gameobject.h \
     source/button.h \
-    source/font.h
+    source/font.h \
+    source/sounds.h \
+    source/timer.h \
+    source/uiobject.h
 
 QMAKE_CXXFLAGS += -std=c++11
 
-LIBS += -lSDL2 -lSDL2_image -lSDL2_ttf
+LIBS += -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
