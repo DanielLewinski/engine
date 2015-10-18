@@ -28,11 +28,14 @@ private:
 class FPSCounter : public Timer
 {
 public:
-	FPSCounter(SDL_Rect newPosition, Font& newFont, SDL_Color newColor = {0,0,0,0});
+	FPSCounter(SDL_Rect newPosition, Font& newFont, int newFrameCap = -1, SDL_Color newColor = {0,0,0,0});
 	void Actualize();
 
 private:
-	int framesCounter;
+	short framesCounter;
+	short frameCap;
+	Uint32 lastFrameTime;
+	double timeDelta; //TODO make it better. Does not go well with integer position.
 };
 
 #endif // TIMER_H

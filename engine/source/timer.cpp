@@ -16,7 +16,7 @@ Uint32 Timer::GetTime()
 		else
 			time = SDL_GetTicks() - startTime;
 	}
-	return time/1000;
+	return time;
 }
 
 void Timer::Actualize()
@@ -24,7 +24,7 @@ void Timer::Actualize()
 	if(isStarted && !isPaused)
 	{
 		timeText.str("");
-		timeText << GetTime();
+		timeText << GetTime()/1000;
 
 		texture = LoadTextTexture(timeText.str().c_str(), color);
 	}
@@ -73,22 +73,32 @@ void Timer::Restart(std::string defaultText)
 	PlayPause();
 }
 
-FPSCounter::FPSCounter(SDL_Rect newPosition, Font &newFont, SDL_Color newColor)
-	: Timer(newPosition, newFont, newColor), framesCounter(0)
+FPSCounter::FPSCounter(SDL_Rect newPosition, Font &newFont, int newFrameCap, SDL_Color newColor)
+	: Timer(newPosition, newFont, newColor), framesCounter(0), frameCap(newFrameCap), lastFrameTime(0), timeDelta(0)
 {
 	PlayPause();
 }
 
 void FPSCounter::Actualize()
 {
-		++framesCounter;
+	timeDelta = (GetTime() - lastFrameTime)/1000.0;
+	lastFrameTime = GetTime();
 
-		if(GetTime() > 0)
-		{
-			timeText.str("");
-			timeText << framesCounter;
+	if(GetTime()/1000 > 0)
+	{
+		timeText.str("");
+		timeText << framesCounter;
 
-			framesCounter = 0;
-			Restart(timeText.str());
-		}
+		framesCounter = 0;
+		lastFrameTime = 0;
+		Restart(timeText.str());
+	}
+	++framesCounter;
+
+
+	if(frameCap > 0)
+	{
+		if(GetTime() < framesCounter*(1000.0/frameCap))
+			SDL_Delay(framesCounter*(1000.0/frameCap) - GetTime());
+	}
 }
