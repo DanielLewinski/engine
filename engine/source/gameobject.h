@@ -1,51 +1,28 @@
-#ifndef GAMEOBJECT
-#define GAMEOBJECT
+#ifndef GAMEOBJECT_H
+#define GAMEOBJECT_H
 
-#include "exceptions.h"
-#include "font.h"
-#include <vector>
-#include <SDL2/SDL_image.h>
+#include "object.h"
+#include "timer.h"
 
-class GameObject
+class GameObject : public Object
 {
 public:
-	GameObject(SDL_Rect newPosition, std::string imagePath, bool doesColorKey = false, SDL_Color colorKey = {0,0,0,0});
-	//GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color newColor = {0,0,0,0});
-	~GameObject();
+	GameObject(SDL_Rect offset, std::string imagePath, Vector newVelocity, bool doesColorKey = false, SDL_Color colorKey = {0,0,0,0});
 
-	virtual void Render();
+	static void SetFPSCounter(FPSCounter& counter);
 
-	static void SetRenderer(SDL_Renderer* renderer);
+	void Render();
 
-	SDL_Texture* LoadSurface(std::string imagePath, bool doesColorKey = false, SDL_Color colorKey = {0,0,0,0});
+	SDL_Rect GetBoundingRectangle();
 
-	void LoadClips(std::vector<SDL_Rect> newClips); //TODO: Adapt this function to handle spritesheet animations
-	void SetActiveClip(unsigned int clipIndex = -1);
-	void Animate();
-	void Activate();
-
-	void ModulateTextureColor(Uint8 r, Uint8 g, Uint8 b);
-	void ModulateTextureAlpha(Uint8, SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND);
-
-protected:
-	GameObject(SDL_Rect newPosition);
-
-	SDL_Texture* LoadTexture(SDL_Surface* surface);
-	//SDL_Texture* LoadTextTexture(std::string textureText, SDL_Color color);
-
-	//Font* font;
-	//SDL_Color color;
-	SDL_Texture* texture;
-	static SDL_Renderer* renderer;
-	SDL_Rect* activeClip;
-	SDL_Rect position;
-	SDL_Point imageSize;
-	bool isActive;
+	void Translate(SDL_Point point);
+	void Move();
+	SDL_Rect Intersection(SDL_Rect boundingRectangle);
 
 private:
-	std::vector<SDL_Rect> spriteClips;
-
+	static FPSCounter* fpsCounter;
+	Vector velocity; //Pixels per second
 };
 
-#endif // GAMEOBJECT
+#endif // GAMEOBJECT_H
 

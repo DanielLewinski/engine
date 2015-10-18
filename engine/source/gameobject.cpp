@@ -1,130 +1,57 @@
 #include "gameobject.h"
 
-SDL_Renderer* GameObject::renderer = nullptr;
+FPSCounter* GameObject::fpsCounter = nullptr;
 
-GameObject::GameObject(SDL_Rect newPosition, std::string imagePath, bool doesColorKey, SDL_Color colorKey)
-	: activeClip(nullptr), position(newPosition), isActive(true)
-{
-	texture = LoadSurface(imagePath, doesColorKey, colorKey);
-}
-/*
-GameObject::GameObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color newColor)
-	: font(&newFont), color(newColor), activeClip(nullptr), position(newPosition), isActive(true)
-{
-	texture = LoadTextTexture(textureText, newColor);
-}
-*/
-GameObject::GameObject(SDL_Rect newPosition)
-	: activeClip(nullptr), position(newPosition), isActive(true)
+GameObject::GameObject(SDL_Rect offset, std::string imagePath, Vector newVelocity, bool doesColorKey, SDL_Color colorKey)
+	: Object(offset, imagePath, doesColorKey, colorKey), velocity(newVelocity)
 {
 
 }
 
-GameObject::~GameObject()
+void GameObject::SetFPSCounter(FPSCounter& counter)
 {
-	SDL_DestroyTexture(texture);
+	fpsCounter = &counter;
 }
 
-void GameObject::Activate()
+SDL_Rect GameObject::GetBoundingRectangle()
 {
-	isActive = !isActive;
+	return offsetRect;
 }
 
-inline void GameObject::Render()
+void GameObject::Render()
 {
 	if(isActive)
-		SDL_RenderCopy(renderer, texture, activeClip, &position);
-}
-
-SDL_Texture* GameObject::LoadSurface(std::string imagePath, bool doesColorKey, SDL_Color colorKey)
-{
-	try
 	{
-		SDL_Surface* surface;
-		surface = IMG_Load(imagePath.c_str());
-		if(surface == nullptr)
-			SDLException::throwException();
-
-		imageSize = {surface->w, surface->h};
-
-		SDL_SetColorKey(surface, doesColorKey, SDL_MapRGB(surface->format, colorKey.r, colorKey.g, colorKey.b));
-		LoadClips({{0, 0, surface->w, surface->h}});
-		SetActiveClip(0);
-		return LoadTexture(surface);
-	}
-	catch(std::exception& exception)
-	{
-		printf("%s\n", exception.what());
-		std::terminate();
+		offsetRect.x = static_cast<int>(position.x);
+		offsetRect.y = static_cast<int>(position.y);
+		SDL_RenderCopy(renderer, texture, activeClip, &offsetRect);
 	}
 }
 
-SDL_Texture* GameObject::LoadTexture(SDL_Surface* surface)
+void GameObject::Translate(SDL_Point point)
 {
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-	if(texture == nullptr)
-		SDLException::throwException();
-
-	SDL_FreeSurface(surface);
-	return texture;
-
-}
-/*
-SDL_Texture* GameObject::LoadTextTexture(std::string textureText, SDL_Color color)
-{
-	try
-	{
-		SDL_Surface* textSurface = TTF_RenderText_Solid(font->Get(), textureText.c_str(), color);
-		if(textSurface == nullptr)
-			SDLException::throwException();
-
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
-		if(texture == nullptr)
-		{
-			SDL_FreeSurface(textSurface);
-			SDLException::throwException();
-		}
-
-		SDL_FreeSurface(textSurface);
-		return texture;
-	}
-	catch(std::exception& exception)
-	{
-		printf("%s\n", exception.what());
-		std::terminate();
-	}
-}
-*/
-void GameObject::LoadClips(std::vector<SDL_Rect> newClips)
-{
-	spriteClips = newClips;
+	position.x = static_cast<double>(point.x);
+	position.y = static_cast<double>(point.y);
 }
 
-void GameObject::SetActiveClip(unsigned int clipIndex)
+void GameObject::Move()
 {
-	if(clipIndex < spriteClips.size())
-		activeClip = &spriteClips[clipIndex];
+	position.x += velocity.x * fpsCounter->GetTimeDelta();
+	position.y += velocity.y * fpsCounter->GetTimeDelta();
 }
 
-void GameObject::SetRenderer(SDL_Renderer *renderer)
-{
-	GameObject::renderer = renderer;
-}
 
-void GameObject::ModulateTextureColor(Uint8 r, Uint8 g, Uint8 b)
+SDL_Rect GameObject::Intersection(SDL_Rect boundingRectangle)
 {
-	SDL_SetTextureColorMod(texture, r, g, b);
-}
+	SDL_Point topLeft = {std::max(offsetRect.x, boundingRectangle.x), std::max(offsetRect.y, boundingRectangle.y) };
+	SDL_Point bottomRight = {std::min(offsetRect.x + offsetRect.w, boundingRectangle.x + boundingRectangle.w), std::min(offsetRect.y + offsetRect.h, boundingRectangle.y + boundingRectangle.h) };
 
-void GameObject::ModulateTextureAlpha(Uint8 alpha, SDL_BlendMode blendMode)
-{
-	SDL_SetTextureBlendMode(texture,blendMode);
-	SDL_SetTextureAlphaMod(texture, alpha);
-}
-
-void GameObject::Animate()
-{
-	static unsigned int frame = 0; //TODO: change this to something sensible
-	SetActiveClip(frame);
-	++frame %= spriteClips.size();
+	int width = bottomRight.x - topLeft.x;
+	int height = bottomRight.y - topLeft.y;
+	SDL_Rect intersection;
+	if(width > 0 && height > 0)
+		intersection = {topLeft.x, topLeft.y, width, height};
+	else
+		intersection = {0,0,0,0};
+	return intersection;
 }

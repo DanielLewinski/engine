@@ -1,13 +1,13 @@
 #include "uiobject.h"
 
-UIObject::UIObject(SDL_Rect newPosition, std::string imagePath, bool doesColorKey, SDL_Color colorKey)
-	: GameObject(newPosition, imagePath, doesColorKey, colorKey)
+UIObject::UIObject(SDL_Rect offset, std::string imagePath, bool doesColorKey, SDL_Color colorKey)
+	: Object(offset, imagePath, doesColorKey, colorKey)
 {
 
 }
 
-UIObject::UIObject(SDL_Rect newPosition, Font& newFont, std::string textureText, SDL_Color newColor)
-	: GameObject(newPosition), font(&newFont), color(newColor)
+UIObject::UIObject(SDL_Rect offset, Font& newFont, std::string textureText, SDL_Color newColor)
+	: Object(offset), font(&newFont), color(newColor)
 {
 	texture = LoadTextTexture(textureText, newColor);
 }

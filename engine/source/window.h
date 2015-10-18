@@ -4,6 +4,7 @@
 #include "button.h"
 #include "sounds.h"
 #include "timer.h"
+#include "gameobject.h"
 #include <iostream>
 
 #define SDL_FLAGS SDL_INIT_VIDEO | SDL_INIT_AUDIO

@@ -6,12 +6,13 @@ CONFIG -= qt
 SOURCES += source/main.cpp \
     source/window.cpp \
     source/exceptions.cpp \
-    source/gameobject.cpp \
     source/button.cpp \
     source/font.cpp \
     source/sounds.cpp \
     source/timer.cpp \
-    source/uiobject.cpp
+    source/uiobject.cpp \
+    source/object.cpp \
+    source/gameobject.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
@@ -19,12 +20,13 @@ qtcAddDeployment()
 HEADERS += \
     source/window.h \
     source/exceptions.h \
-    source/gameobject.h \
     source/button.h \
     source/font.h \
     source/sounds.h \
     source/timer.h \
-    source/uiobject.h
+    source/uiobject.h \
+    source/object.h \
+    source/gameobject.h
 
 QMAKE_CXXFLAGS += -std=c++11
 

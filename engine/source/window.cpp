@@ -76,7 +76,7 @@ void Window::CreateRenderer()
 	if(renderer == nullptr)
 		SDLException::throwException();
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	GameObject::SetRenderer(renderer);
+	Object::SetRenderer(renderer);
 }
 
 inline void Window::ClearScreen()
@@ -107,24 +107,29 @@ void Window::GameLoop()
 {
 	bool done = false;
 
-	//GameObject gameObject({0,0,64,205}, "foo.png",true, 0, 255, 255);
-	//gameObject.ModulateTextureColor(128,128,128);
-	//gameObject.ModulateTextureAlpha(128);
-	//gameObject.LoadClips({{0,0,64,205},{64,0,64,205},{128,0,64,205},{192,0,64,205}});
+	std::cout << sizeof(std::stringstream) << "\n" << sizeof(SDL_Texture*) << "\n" << sizeof(SDL_Surface*) << "\n";
+	std::cout << sizeof(Window) << "\n" << sizeof(Object) << "\n" << sizeof(UIObject) << "\n" << sizeof(Button) << "\n" << sizeof(Timer) << "\n" << sizeof(FPSCounter) << "\n" << sizeof(GameObject) << "\n" << sizeof(Font) << "\n" << sizeof(Sound) << "\n" << sizeof(Music) << "\n";
+
+	//Object object({0,0,64,205}, "foo.png",true, 0, 255, 255);
+	//object.ModulateTextureColor(128,128,128);
+	//object.ModulateTextureAlpha(128);
+	//object.LoadClips({{0,0,64,205},{64,0,64,205},{128,0,64,205},{192,0,64,205}});
 
 	Font font("font.ttf", 100);
 	Sound sound("sound.wav");
 	Music music("music.ogg");
 	Timer timer({0,0,100,100}, font);
-	FPSCounter fpsCounter({540,0,100,100}, font,60);
+	FPSCounter fpsCounter({540,0,100,100}, font);
+
 	Button button({0,0,width/2,height/2},font, "Play/Pause", "background.png", [&music, &timer](){ printf("chuj\n"); music.PlayPause(); timer.PlayPause();});
 	Button button1({width/2,0,width/2,height/2},font, "Hide Button", "background.png", [&button](){ printf("dupa\n"); button.Activate();});
 	Button button2({0,height/2,width/2,height/2},font, "Play sound", "background.png", [&sound](){ printf("kurwa\n"); sound.Play();});
 	Button button3({width/2,height/2,width/2,height/2},font, "Stop Music", "background.png", [&music, &timer](){ printf("cipa"); music.Stop(); timer.Stop();});
 
+	GameObject::SetFPSCounter(fpsCounter);
 
-	std::cout << sizeof(std::stringstream) << "\n";
-	std::cout << sizeof(Window) << "\n" << sizeof(GameObject) << "\n" << sizeof(UIObject) << "\n" << sizeof(Button) << "\n" << sizeof(Timer) << "\n" << sizeof(FPSCounter) << "\n" << sizeof(Font) << "\n" << sizeof(Sound) << "\n" << sizeof(Music) << "\n";
+	GameObject asteroid({0,380,100,100}, "asteroid.png", {100,0});
+	GameObject ship({540,380,100,100}, "ship.png", {0,0});
 
 	while(!done)
 	{
@@ -137,17 +142,31 @@ void Window::GameLoop()
 			button2.EventLoop(event);
 			button3.EventLoop(event);
 		}
-		//gameObject.Animate();
+		//object.Animate();
 		timer.Actualize();
-		fpsCounter.Actualize();
+		fpsCounter.Actualize();\
+
+		asteroid.Move();
+		SDL_Rect intersection = asteroid.Intersection(ship.GetBoundingRectangle());
+		if(intersection.w > 0 && intersection.h > 0)
+		{
+			asteroid.Translate({0,380});
+			printf("%d,%d | %d,%d\n", intersection.x, intersection.y, intersection.w, intersection.h);
+		}
 
 		ClearScreen();
+
 		button.Render();
 		button1.Render();
 		button2.Render();
 		button3.Render();
 		timer.Render();
 		fpsCounter.Render();
+
+		asteroid.Render();
+
+		ship.Render();
+
 		UpdateScreen();
 	}
 }

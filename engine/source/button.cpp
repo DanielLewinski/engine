@@ -1,13 +1,13 @@
 #include "button.h"
 
-Button::Button(SDL_Rect newPosition, std::string imagePath, std::string backgroundPath, std::function<void()> newFunction, bool doesColorKey, SDL_Color colorKey)
-	: UIObject(newPosition, imagePath, doesColorKey, colorKey), Function(newFunction), wasClicked(false)
+Button::Button(SDL_Rect offset, std::string imagePath, std::string backgroundPath, std::function<void()> newFunction, bool doesColorKey, SDL_Color colorKey)
+	: UIObject(offset, imagePath, doesColorKey, colorKey), Function(newFunction), wasClicked(false)
 {
 	LoadBackground(backgroundPath);
 }
 
-Button::Button(SDL_Rect newPosition, Font& font, std::string imageText, std::string backgroundPath, std::function<void()> newFunction, SDL_Color newColor)
-	: UIObject(newPosition, font,imageText, newColor), Function(newFunction), wasClicked(false)
+Button::Button(SDL_Rect offset, Font& font, std::string imageText, std::string backgroundPath, std::function<void()> newFunction, SDL_Color newColor)
+	: UIObject(offset, font,imageText, newColor), Function(newFunction), wasClicked(false)
 {
 	LoadBackground(backgroundPath.c_str());
 }
@@ -36,8 +36,8 @@ void Button::Render()
 {
 	if(isActive)
 	{
-		SDL_RenderCopy(renderer, background, activeClip, &position);
-		SDL_RenderCopy(renderer, texture, nullptr, &position);
+		SDL_RenderCopy(renderer, background, activeClip, &offsetRect);
+		SDL_RenderCopy(renderer, texture, nullptr, &offsetRect);
 	}
 }
 
@@ -46,7 +46,7 @@ bool Button::isPointedAt()
 	SDL_Point mousePosition;
 	SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
 
-	if(mousePosition.x > position.x + position.w || mousePosition.x < position.x || mousePosition.y >  position.y + position.h || mousePosition.y < position.y)
+	if(mousePosition.x > offsetRect.x + offsetRect.w || mousePosition.x < offsetRect.x || mousePosition.y >  offsetRect.y + offsetRect.h || mousePosition.y < offsetRect.y)
 		return false;
 
 	return true;

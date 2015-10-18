@@ -1,7 +1,7 @@
 #include "timer.h"
 
-Timer::Timer(SDL_Rect newPosition, Font& newFont, SDL_Color color)
-	: UIObject(newPosition, newFont, "0", color), startTime(0), pauseTime(0), isStarted(false), isPaused(false)
+Timer::Timer(SDL_Rect offset, Font& newFont, SDL_Color color)
+	: UIObject(offset, newFont, "0", color), startTime(0), pauseTime(0), isStarted(false), isPaused(false)
 {
 
 }
@@ -73,8 +73,8 @@ void Timer::Restart(std::string defaultText)
 	PlayPause();
 }
 
-FPSCounter::FPSCounter(SDL_Rect newPosition, Font &newFont, int newFrameCap, SDL_Color newColor)
-	: Timer(newPosition, newFont, newColor), framesCounter(0), frameCap(newFrameCap), lastFrameTime(0), timeDelta(0)
+FPSCounter::FPSCounter(SDL_Rect offset, Font &newFont, int newFrameCap, SDL_Color newColor)
+	: Timer(offset, newFont, newColor), framesCounter(0), frameCap(newFrameCap), lastFrameTime(0), timeDelta(0)
 {
 	PlayPause();
 }
@@ -95,10 +95,14 @@ void FPSCounter::Actualize()
 	}
 	++framesCounter;
 
-
 	if(frameCap > 0)
 	{
 		if(GetTime() < framesCounter*(1000.0/frameCap))
 			SDL_Delay(framesCounter*(1000.0/frameCap) - GetTime());
 	}
+}
+
+double FPSCounter::GetTimeDelta()
+{
+	return timeDelta;
 }

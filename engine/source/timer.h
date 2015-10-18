@@ -7,7 +7,7 @@
 class Timer : public UIObject
 {
 public:
-	Timer(SDL_Rect newPosition, Font& newFont, SDL_Color color = {0,0,0,0});
+	Timer(SDL_Rect offset, Font& newFont, SDL_Color color = {0,0,0,0});
 	virtual void Actualize();
 	Uint32 GetTime();
 
@@ -28,14 +28,15 @@ private:
 class FPSCounter : public Timer
 {
 public:
-	FPSCounter(SDL_Rect newPosition, Font& newFont, int newFrameCap = -1, SDL_Color newColor = {0,0,0,0});
+	FPSCounter(SDL_Rect offset, Font& newFont, int newFrameCap = -1, SDL_Color newColor = {0,0,0,0});
 	void Actualize();
+	double GetTimeDelta();
 
 private:
 	short framesCounter;
 	short frameCap;
 	Uint32 lastFrameTime;
-	double timeDelta; //TODO make it better. Does not go well with integer position.
+	double timeDelta;
 };
 
 #endif // TIMER_H
